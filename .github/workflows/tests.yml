@@ -1,0 +1,45 @@
+# Nombre del flujo de trabajo
+name: CI Pipeline Pruebas Automatizadas
+
+# Definir cuándo se dispara el pipeline
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    # Entorno virtual (Linux Ubuntu)
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonar el repositorio
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # 2. Configurar el entorno de Node.js
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Instalar las dependencias (Jest)
+      - name: Instalar dependencias
+        run: npm install
+
+      # 4. Ejecutar las pruebas automatizadas
+      - name: Ejecutar tests
+        run: npm test
+
+      # 5. Generar reporte de cobertura
+      - name: Generar reporte de cobertura
+        run: npm run coverage
+
+      # 6. (Opcional) Subir el reporte como un artefacto para descargarlo
+      - name: Guardar reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-cobertura
+          path: coverage/
