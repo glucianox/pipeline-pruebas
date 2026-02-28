@@ -13,6 +13,11 @@ jobs:
     # Entorno virtual (Linux Ubuntu)
     runs-on: ubuntu-latest
 
+    # Definimos que todos los comandos se ejecuten dentro de la carpeta del proyecto
+    defaults:
+      run:
+        working-directory: ./pipeline-pruebas
+
     steps:
       # 1. Clonar el repositorio
       - name: Checkout del código
@@ -24,10 +29,13 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          # Importante: indicar dónde está el lockfile para la caché
+          cache-dependency-path: ./pipeline-pruebas/package-lock.json
 
       # 3. Instalar las dependencias (Jest)
+      # Usamos 'npm ci' que es más rápido y seguro para entornos de CI
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
 
       # 4. Ejecutar las pruebas automatizadas
       - name: Ejecutar tests
@@ -37,9 +45,9 @@ jobs:
       - name: Generar reporte de cobertura
         run: npm run coverage
 
-      # 6. (Opcional) Subir el reporte como un artefacto para descargarlo
+      # 6. Guardar el reporte como un artefacto
       - name: Guardar reporte de cobertura
         uses: actions/upload-artifact@v4
         with:
           name: reporte-cobertura
-          path: coverage/
+          path: pipeline-pruebas/coverage/
